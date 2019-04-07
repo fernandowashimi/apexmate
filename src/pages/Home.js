@@ -2,8 +2,9 @@ import React, { Component } from "react";
 import api from "../services/api";
 import Footer from "../components/Footer";
 import SearchBar from "../components/SearchBar";
+import PlayerCard from "../components/PlayerCard";
 import Head from "../components/Head";
-import { Grid } from "semantic-ui-react";
+import { Grid, Transition, Segment, Dimmer, Loader } from "semantic-ui-react";
 
 class Home extends Component {
   constructor() {
@@ -12,7 +13,13 @@ class Home extends Component {
       searchParams: {
         platform: "pc", // Default paltform
         name: ""
-      }
+      },
+      playerInfo: {
+        playerfound: false
+      },
+      isDisplayingInfo: false,
+      isDisplayingMessage: false,
+      isLoading: false
     };
 
     // this.sendData = this.sendData.bind(this);
@@ -22,6 +29,8 @@ class Home extends Component {
     this.getInputParam = this.getInputParam.bind(this);
     this.getDropdownParam = this.getDropdownParam.bind(this);
     this.fetchData = this.fetchData.bind(this);
+    this.toggleVisibility = this.toggleVisibility.bind(this);
+    this.toggleLoading = this.toggleLoading.bind(this);
   }
 
   // Get input value from SearchBar component
@@ -44,8 +53,17 @@ class Home extends Component {
     });
   }
 
+  toggleVisibility() {
+    !this.state.isDisplayingInfo && this.setState({ isDisplayingInfo: true });
+  }
+
+  toggleLoading() {
+    this.setState({ isLoading: !this.state.isLoading });
+  }
+
   // Start search proccess
   async fetchData() {
+    this.toggleLoading();
     try {
       // Get the basic info using the player name (the plyer aid is necessary to get the full stats)
       const basic_info = await api.get("search.php", {
@@ -71,30 +89,21 @@ class Home extends Component {
           console.warn(error);
         }
       } else {
+        // Reset state if doesn't found a player
         this.setState({
-          playerInfo: undefined
+          playerInfo: {
+            playerfound: false
+          }
         });
       }
     } catch (error) {
       console.warn(error);
     } finally {
       console.log(this.state);
+      this.toggleLoading();
+      this.toggleVisibility();
     }
   }
-
-  // sendData(data) {
-  //   this.setState({ data });
-  // }
-
-  // handleStatus(loading) {
-  //   this.setState({ loading });
-  // }
-
-  // handleVisibility() {
-  //   if (!this.state.visible) {
-  //     this.setState({ visible: !this.state.visible });
-  //   }
-  // }
 
   render() {
     return (
@@ -116,14 +125,35 @@ class Home extends Component {
           style={{ height: "100%" }}
           verticalAlign="middle"
         >
-          <Grid.Column style={{ maxWidth: "800px", margin: "1em" }}>
+          <Grid.Column style={{ maxWidth: "600px", margin: "1em" }}>
             <Head />
             <SearchBar
               sendInputParam={this.getInputParam}
               sendDropdownParam={this.getDropdownParam}
               fetchData={this.fetchData}
             />
+            <Transition
+              animation={"slide down"}
+              duration={500}
+              visible={this.state.isDisplayingInfo}
+              unmountOnHide
+            >
+              <div>
+                {this.state.playerInfo.playerfound && (
+                  <Segment>
+                    <PlayerCard
+                      name={this.state.playerInfo.name}
+                      avatar={this.state.playerInfo.avatar}
+                      aid={this.state.playerInfo.aid}
+                    />
+                  </Segment>
+                )}
+              </div>
+            </Transition>
             <Footer />
+            <Dimmer active={this.state.isLoading} page>
+              <Loader>Carregando...</Loader>
+            </Dimmer>
           </Grid.Column>
         </Grid>
       </div>

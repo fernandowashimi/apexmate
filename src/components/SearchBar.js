@@ -11,26 +11,18 @@ class SearchBar extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {};
-
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleDropdownChange = this.handleDropdownChange.bind(this);
   }
 
-  // Update input param in state and send to parent
+  // Send input value to parent
   handleInputChange(e) {
     this.props.sendInputParam(e.target.value);
-    // this.setState({ searchParams: { name: e.target.value } }, () => {
-    //   this.props.sendInputParam(this.state.searchParams.name);
-    // });
   }
 
-  // Update dropdown param in state and send to parent
+  // Send dropdown value to parent
   handleDropdownChange(e, { value }) {
     this.props.sendDropdownParam(value);
-    // this.setState({ searchParams: { platform: value } }, () => {
-    //   this.props.sendDropdownParam(this.state.searchParams.platform);
-    // });
   }
 
   render() {
