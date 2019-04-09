@@ -5,6 +5,8 @@ import SearchBar from "../components/SearchBar";
 import PlayerCard from "../components/PlayerCard";
 import Head from "../components/Head";
 import { Grid, Transition, Segment, Dimmer, Loader } from "semantic-ui-react";
+import { ToastContainer, Slide, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 class Home extends Component {
   constructor() {
@@ -63,6 +65,7 @@ class Home extends Component {
 
   // Start search proccess
   async fetchData() {
+    this.dismissAll();
     this.toggleLoading();
     try {
       // Get the basic info using the player name (the plyer aid is necessary to get the full stats)
@@ -95,6 +98,7 @@ class Home extends Component {
             playerfound: false
           }
         });
+        this.notify();
       }
     } catch (error) {
       console.warn(error);
@@ -104,6 +108,10 @@ class Home extends Component {
       this.toggleVisibility();
     }
   }
+
+  // Toastify
+  notify = () => toast.error("Oops! Não foi possível encontrar esse jogador.");
+  dismissAll = () => toast.dismiss();
 
   render() {
     return (
@@ -140,11 +148,18 @@ class Home extends Component {
             >
               <div>
                 {this.state.playerInfo.playerfound && (
-                  <Segment>
+                  <Segment inverted>
                     <PlayerCard
                       name={this.state.playerInfo.name}
                       avatar={this.state.playerInfo.avatar}
                       aid={this.state.playerInfo.aid}
+                      platform={this.state.playerInfo.platform}
+                      globalrank={this.state.playerInfo.globalrank}
+                      level={this.state.playerInfo.level}
+                      kills={this.state.playerInfo.kills}
+                      headshots={this.state.playerInfo.headshots}
+                      damage={this.state.playerInfo.damage}
+                      matches={this.state.playerInfo.matches}
                     />
                   </Segment>
                 )}
@@ -156,6 +171,18 @@ class Home extends Component {
             </Dimmer>
           </Grid.Column>
         </Grid>
+        <ToastContainer
+          position="bottom-center"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnVisibilityChange
+          draggable={false}
+          pauseOnHover
+          transition={Slide}
+        />
       </div>
     );
   }

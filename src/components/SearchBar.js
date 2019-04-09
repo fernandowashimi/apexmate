@@ -13,6 +13,7 @@ class SearchBar extends Component {
 
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleDropdownChange = this.handleDropdownChange.bind(this);
+    this.handleKeyPress = this.handleKeyPress.bind(this);
   }
 
   // Send input value to parent
@@ -23,6 +24,13 @@ class SearchBar extends Component {
   // Send dropdown value to parent
   handleDropdownChange(e, { value }) {
     this.props.sendDropdownParam(value);
+  }
+
+  // Search for player when press enter
+  handleKeyPress(e) {
+    if (e.key === "Enter") {
+      this.props.fetchData();
+    }
   }
 
   render() {
@@ -42,7 +50,10 @@ class SearchBar extends Component {
             action
             fluid
           >
-            <input onChange={this.handleInputChange} />
+            <input
+              onChange={this.handleInputChange}
+              onKeyPress={this.handleKeyPress}
+            />
             <Dropdown
               button
               options={options}
