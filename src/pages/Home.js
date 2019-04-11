@@ -1,8 +1,10 @@
 import React, { Component } from "react";
 import api from "../services/api";
+import format from "../services/formatJSON";
 import Footer from "../components/Footer";
 import SearchBar from "../components/SearchBar";
 import PlayerCard from "../components/PlayerCard";
+import LegendCard from "../components/LegendCard";
 import Head from "../components/Head";
 import { Grid, Transition, Segment, Dimmer, Loader } from "semantic-ui-react";
 import { ToastContainer, Slide, toast } from "react-toastify";
@@ -16,7 +18,7 @@ class Home extends Component {
         platform: "pc", // Default paltform
         name: ""
       },
-      playerInfo: {
+      result: {
         playerfound: false
       },
       isDisplayingInfo: false,
@@ -85,16 +87,15 @@ class Home extends Component {
               aid: basic_info.data.results[0].aid
             }
           });
-
           // Update state with the result
-          this.setState({ playerInfo: full_info.data });
+          this.setState({ result: format(full_info.data) });
         } catch (error) {
           console.warn(error);
         }
       } else {
         // Reset state if doesn't found a player
         this.setState({
-          playerInfo: {
+          result: {
             playerfound: false
           }
         });
@@ -103,7 +104,6 @@ class Home extends Component {
     } catch (error) {
       console.warn(error);
     } finally {
-      console.log(this.state);
       this.toggleLoading();
       this.toggleVisibility();
     }
@@ -114,6 +114,8 @@ class Home extends Component {
   dismissAll = () => toast.dismiss();
 
   render() {
+    const result = this.state.result;
+
     return (
       <div className="login-form">
         <style>
@@ -147,20 +149,12 @@ class Home extends Component {
               unmountOnHide
             >
               <div>
-                {this.state.playerInfo.playerfound && (
+                {this.state.result.playerfound && (
                   <Segment inverted>
-                    <PlayerCard
-                      name={this.state.playerInfo.name}
-                      avatar={this.state.playerInfo.avatar}
-                      aid={this.state.playerInfo.aid}
-                      platform={this.state.playerInfo.platform}
-                      globalrank={this.state.playerInfo.globalrank}
-                      level={this.state.playerInfo.level}
-                      kills={this.state.playerInfo.kills}
-                      headshots={this.state.playerInfo.headshots}
-                      damage={this.state.playerInfo.damage}
-                      matches={this.state.playerInfo.matches}
-                    />
+                    <PlayerCard {...result.player} />
+                    {result.legends.map((legend, index) => {
+                      return <LegendCard key={index} {...legend} />;
+                    })}
                   </Segment>
                 )}
               </div>
